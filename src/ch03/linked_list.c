@@ -10,7 +10,7 @@ fllint_node* init_fllint_node(int n)
    if (ptr)
    {
        ptr->data = n;
-       ptr->next = nullptr;
+       ptr->next = NULL;
    }
    return ptr;
 }
@@ -56,7 +56,7 @@ LLStatus fllint_remove(size_t pos, fllint_node **ret, fllint *list)
         curr = curr->next;
     fllint_node* rm_node = curr->next;
     curr->next = rm_node->next;
-    rm_node->next = nullptr;
+    rm_node->next = NULL;
     // Update return value and list size
     *ret = rm_node;
     --(list->sz);
@@ -90,7 +90,7 @@ LLStatus fllint_get(size_t pos, fllint_node **item, fllint *list)
     fllint_node *curr = list->head;
     // Iterate until we find the node BEFORE the one to be removed.
     for (size_t i = 0; i < pos; ++i)
-        curr = list->head;
+        curr = curr->next;
     *item = curr->next;
     return OK;
 }

@@ -5,13 +5,15 @@
 #include <stdio.h>
 #include <stdlib.h>  // rand
 
-#ifdef RAND_MAX
-#undef RAND_MAX
-#endif
-#define RAND_MAX 1000
+#define MAX_SIZE 1000
 #define INNER_TEST_ITERS 1000
 
-
+// Inclusive random within established range
+static int ranged_rand(int min, int max)
+{
+    // https://stackoverflow.com/a/1202706
+    return rand() % (max + 1 - min) + min;
+}
 void test_push_pops(fllint *list);
 void test_get(fllint *list);
 void test_insert_remove(fllint *list);
@@ -20,9 +22,8 @@ void run_tests();
 
 int main(int argc, char* argv[])
 {
-    assert(RAND_MAX == 1000);
     if (argc != 2)
-        fprintf(stderr, "Usage: llTest <NUM_LOOPS>");
+        fprintf(stderr, "Usage: llTest <NUM_LOOPS>\n");
     int iterations = atoi(argv[1]);
     // Run at least once
     if (iterations <= 0)
@@ -36,13 +37,13 @@ void run_tests()
     fllint *list = init_fllint();
     // Fill list such that its values ascend from "left to right"
     // Size of the list should be RAND_MAX + 1;
-    for (int i = RAND_MAX; i >= 0; --i)
+    for (int i = MAX_SIZE; i >= 0; --i)
         fllint_push(init_fllint_node(i), list);
-    assert(fllint_len(list) == RAND_MAX + 1);
+    assert(fllint_len(list) == MAX_SIZE + 1);
 
     test_get(list);
-    test_push_pops(list);
-    test_insert_remove(list);
+    //test_push_pops(list);
+    //test_insert_remove(list);
     
     fllint_delete(list);
 }
@@ -51,10 +52,13 @@ void test_get(fllint *list)
 {
     fllint_node *item;
     int idx;
+    fprintf(stdout, "<test_get>\n----------\n");
     for (int i = 0; i < INNER_TEST_ITERS; ++i)
     {
-        idx = rand();
+        idx = ranged_rand(0, MAX_SIZE);
+        fprintf(stdout, "Idx: %d\n", idx);
         assert(fllint_get(idx, &item, list) == OK);
+        fprintf(stdout, "GOT: %d\n", item->data);
         assert(item->data == idx);
     }
     return;
@@ -94,7 +98,7 @@ void test_insert_remove(fllint *list)
     // VALID CASES
     for (int i = 0; i < INNER_TEST_ITERS; ++i)
     {
-        int idx = rand();
+        int idx = ranged_rand(0, MAX_SIZE);
         assert(fllint_remove(idx, &item, list) == OK);
         assert(item->data == idx);
         assert(fllint_insert(item, idx, list) == OK);

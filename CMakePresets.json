@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "configurePresets": [
+    {
+      "name": "dsa",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+            "CMAKE_C_COMPILER": "/usr/bin/clang"
+      }
+    }
+  ]
+}
