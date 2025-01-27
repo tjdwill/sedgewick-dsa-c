@@ -22,8 +22,15 @@ fllint* init_fllint()
     {
         list->sz = 0;
         // Create a dummy head to make implementations easier.
-        list->head = init_fllint_node(0);
-        assert(list->head);
+        fllint_node *head = init_fllint_node(0);
+        if (head)
+            list->head = head;
+        else 
+        {
+            free(head);
+            free(list);
+            return nullptr;
+        }
     }
     return list;
 }
@@ -71,10 +78,9 @@ LLStatus fllint_pop(fllint_node **ret, fllint *list)
 void fllint_delete(fllint *list)
 {
     fllint_node *curr = list->head;
-    fllint_node *prev;
     while(curr)
     {
-        prev = curr;
+        fllint_node *prev = curr;
         curr = curr->next;
         free(prev);
     }
@@ -103,3 +109,99 @@ bool fllint_empty(fllint *list)
 {
     return fllint_len(list) == 0;
 }
+
+
+//-------------------------------LLInt Implementation------------------------------------------
+
+LLIntNode* LLIntNode_init(int k)
+{
+    LLIntNode* node = malloc(sizeof(LLIntNode));
+    if (node)
+    {
+        node->data = k;
+        node->next = nullptr;
+        node->prev = nullptr;
+    }
+    return node;
+}
+
+LLInt* LLInt_init()
+{
+    LLInt* list = malloc(sizeof(LLInt));
+    if (list)
+    {
+        LLIntNode* head = LLIntNode_init(-1);
+        LLIntNode* tail = LLIntNode_init(-1);
+        if (head && tail)
+        {
+            head->next = tail;
+            tail->prev = head;
+
+            list->head = head;
+            list->tail = tail;
+        }
+        else
+        {
+            // free all pointers and return nullptr
+            // free is nopt on nullptr, so it's safe to call
+            free(head);
+            free(tail);
+            free(list);
+            return nullptr;
+        }
+    }
+    return list;
+}
+
+void LLInt_delete(LLInt *list)
+{
+    LLIntNode *curr = list->head;
+    while(curr)
+    {
+        LLIntNode *prev = curr;
+        curr = curr->next;
+        free(prev);
+    }
+    free(list);
+    return;
+}
+//
+//// MODIFIERS
+//
+//LLStatus LLInt_insert(LLInt *list)
+//{}
+//
+//LLStatus LLInt_push(LLInt *list, LLIntNode **ret)
+//{}
+//
+//LLStatus LLInt_pushback(LLInt *list, LLIntNode **ret)
+//{}
+//
+//LLStatus LLInt_remove(LLInt *list, LLIntNode **ret, size_t pos)
+//{}
+//
+//LLStatus LLInt_pop(LLInt *list, LLIntNode **ret)
+//{}
+//
+//LLStatus LLInt_popback(LLInt *list, LLIntNode **ret)
+//{}
+//
+//// ACCESSORS
+//
+//LLStatus LLInt_get(LLInt *list, LLIntNode **ret, size_t pos)
+//{}
+//
+//size_t LLInt_len(LLInt *list)
+//{}
+//
+//bool LLInt_empty(LLInt *list)
+//{}
+//
+//// UTILS
+//
+//
+//
+//
+//void LLInt_walk_to(LLInt *list, LLIntNode** pp_node, size_t pos)
+//{}
+
