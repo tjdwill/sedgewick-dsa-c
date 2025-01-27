@@ -125,13 +125,19 @@ LLIntNode* LLIntNode_init(int k)
     return node;
 }
 
+void LLIntNode_destroy(LLIntNode *node)
+{
+    free(node);
+    return;
+}
+
 LLInt* LLInt_init()
 {
     LLInt* list = malloc(sizeof(LLInt));
     if (list)
     {
         LLIntNode* head = LLIntNode_init(-1);
-        LLIntNode* tail = LLIntNode_init(-1);
+        LLIntNode* tail = LLIntNode_init(-2);
         if (head && tail)
         {
             head->next = tail;
@@ -139,13 +145,15 @@ LLInt* LLInt_init()
 
             list->head = head;
             list->tail = tail;
+            list->sz = 0;
         }
         else
         {
-            // free all pointers and return nullptr
-            // free is nopt on nullptr, so it's safe to call
-            free(head);
-            free(tail);
+            // Call destructors for the nodes
+            // Due to `free` being no-op on nullptrs, we can safely call the destructors
+            // even if the allocation failed on one.
+            LLIntNode_destroy(head);
+            LLIntNode_destroy(tail);
             free(list);
             return nullptr;
         }
@@ -153,14 +161,14 @@ LLInt* LLInt_init()
     return list;
 }
 
-void LLInt_delete(LLInt *list)
+void LLInt_destroy(LLInt *list)
 {
     LLIntNode *curr = list->head;
     while(curr)
     {
         LLIntNode *prev = curr;
         curr = curr->next;
-        free(prev);
+        LLIntNode_destroy(prev);
     }
     free(list);
     return;
@@ -168,14 +176,48 @@ void LLInt_delete(LLInt *list)
 //
 //// MODIFIERS
 //
-//LLStatus LLInt_insert(LLInt *list)
-//{}
-//
-//LLStatus LLInt_push(LLInt *list, LLIntNode **ret)
-//{}
-//
-//LLStatus LLInt_pushback(LLInt *list, LLIntNode **ret)
-//{}
+LLStatus LLInt_insert(LLInt *list, LLIntNode *item, size_t pos)
+{
+    if (LLInt_empty(list))
+    {
+        // just insert the node.
+        item->next = list->tail;
+        item->prev = list->head;
+        list->head->next = item;
+        list->tail->prev = item;
+        ++(list->sz);
+        return OK;
+    }
+    if (pos > LLInt_len(list))
+        return BOUNDS_ERR;
+    // Traverse through the list and land ON the spot of insertion.
+    // Place item before the present node.
+    LLIntNode *curr;
+    LLInt_walk_to(list, &curr, pos);
+    // Now, curr is ON the place we want item to be, so move `curr` further toward the tail.
+    LLIntNode *curr_prev = curr->prev;
+    LLIntNode *curr_next = curr->next;
+    curr_prev->next = item;
+    curr_next->prev = item;
+
+    item->prev = curr->prev;
+    item->next = curr;
+    curr->prev = item;
+    // curr->next = curr->next // for completeness
+    // Update size
+    ++(list->sz);
+    return OK;
+}
+
+LLStatus LLInt_push(LLInt *list, LLIntNode *item)
+{
+    return LLInt_insert(list, item, 0);
+}
+
+LLStatus LLInt_pushback(LLInt *list, LLIntNode *item)
+{
+    return LLInt_insert(list, item, LLInt_len(list));
+}
 //
 //LLStatus LLInt_remove(LLInt *list, LLIntNode **ret, size_t pos)
 //{}
@@ -186,22 +228,40 @@ void LLInt_delete(LLInt *list)
 //LLStatus LLInt_popback(LLInt *list, LLIntNode **ret)
 //{}
 //
-//// ACCESSORS
-//
 //LLStatus LLInt_get(LLInt *list, LLIntNode **ret, size_t pos)
 //{}
-//
-//size_t LLInt_len(LLInt *list)
-//{}
-//
-//bool LLInt_empty(LLInt *list)
-//{}
-//
-//// UTILS
-//
-//
-//
-//
-//void LLInt_walk_to(LLInt *list, LLIntNode** pp_node, size_t pos)
-//{}
+
+size_t LLInt_len(LLInt *list)
+{
+    return list->sz;
+}
+
+bool LLInt_empty(LLInt *list)
+{
+    return LLInt_len(list) == 0;
+}
+
+void LLInt_walk_to(LLInt *list, LLIntNode** pp_node, size_t pos)
+{
+    assert(!LLInt_empty(list));
+    size_t sz = LLInt_len(list);
+    assert(pos <= sz);  // LEQ in order to insert at the end of the list.
+    // Choose which direction to begin from. Because LLInts are doubly-linked, we can walk
+    // from either direction, meaning the worst-case time complexity is halved.
+    if (sz - pos <= pos)
+    {
+        // Walk from the tail
+        *pp_node = list->tail;
+        for (size_t i = sz; i > pos; --i)
+            *pp_node = (*pp_node)->prev;
+    }
+    else
+    {
+        // Walk from HEAD
+        *pp_node = list->head;
+        for (size_t i = 0; i < pos + 1; ++i) // Calculates how many times to move from HEAD
+            *pp_node = (*pp_node)->next;
+    }
+    return;
+}
 

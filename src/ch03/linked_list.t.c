@@ -14,10 +14,9 @@ static inline int ranged_rand(int min, int max)
     // https://stackoverflow.com/a/1202706
     return rand() % (max + 1 - min) + min;
 }
-void test_push_pops(fllint *list);
-void test_get(fllint *list);
-void test_insert_remove(fllint *list);
-void test_delete(fllint *list);
+void test_push_pops(LLInt *list);
+void test_get(LLInt *list);
+void test_insert_remove(LLInt *list);
 void run_tests();
 
 int main(int argc, char* argv[])
@@ -35,7 +34,26 @@ int main(int argc, char* argv[])
 void run_tests()
 {
     LLInt *list = LLInt_init();
+    // Fill list such that its values ascend from "left to right"
+    // Size of the list should be RAND_MAX + 1;
+    for (int i = MAX_SIZE; i >= 0; --i)
+        assert(LLInt_push(list, LLIntNode_init(i)) == OK);
+    fprintf(stderr, "List Len: %lu\n", LLInt_len(list));
+    assert(LLInt_len(list) == MAX_SIZE + 1);
+    
+    // TODO: Create an LLInt_begin() accessor?
+    LLIntNode *sigil = list->head->next;
+    int test = 0;
+    while (sigil->next)
+    {
+        fprintf(stderr, "Test: %d\tVal: %d\n", test, sigil->data);
+        //assert(test == sigil->data);
+        sigil = sigil->next;
+        ++test;
+    }
+    fprintf(stderr, "Exit.\n");
 
-    LLInt_delete(list);
+    LLInt_destroy(list);
     return;
 }
+

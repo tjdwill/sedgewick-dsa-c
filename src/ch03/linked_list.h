@@ -102,6 +102,7 @@ typedef struct
 /// Initialize a node, returning `nullptr` if the
 /// allocation fails.
 LLIntNode* LLIntNode_init(int k);
+void LLIntNode_destroy(LLIntNode *node);
 /// LLInt (Linked List of Ints)
 /// ---------------------------
 ///
@@ -119,16 +120,17 @@ typedef struct
 /// LLInt Constructor
 LLInt* LLInt_init();
 /// LLInt Destructor
-void LLInt_delete(LLInt *list);
+void LLInt_destroy(LLInt *list);
 
 // MODIFIERS
 
 /// Insert the element at the specified position, transferring ownership to the list.
-LLStatus LLInt_insert(LLInt *list);
+/// If displacing a node already present, `item` is placed before it.
+LLStatus LLInt_insert(LLInt *list, LLIntNode *item, size_t pos);
 /// Insert the element at the front of the list, transferring ownership to the list.
-LLStatus LLInt_push(LLInt *list, LLIntNode **ret);
+LLStatus LLInt_push(LLInt *list, LLIntNode *item);
 /// Insert the element at the back of the list, transferring ownership to the list.
-LLStatus LLInt_pushback(LLInt *list, LLIntNode **ret);
+LLStatus LLInt_pushback(LLInt *list, LLIntNode *item);
 /// Remove the element at the specified position, transferring ownership to the caller.
 LLStatus LLInt_remove(LLInt *list, LLIntNode **ret, size_t pos);
 /// Remove the element at the front position, transferring ownership to the caller.
@@ -141,14 +143,19 @@ LLStatus LLInt_popback(LLInt *list, LLIntNode **ret);
 /// Retrieve a (non-owning) reference to the element at the specified position.
 LLStatus LLInt_get(LLInt *list, LLIntNode **ret, size_t pos);
 /// Get the number of elements in the list.
-/// Assumes a valid list.
+/// Assumption(s):
+///     - `list` is valid
 size_t LLInt_len(LLInt *list);
 bool LLInt_empty(LLInt *list);
 
 // UTILS
 
+/// INTERNAL USE ONLY
 /// A centralized traversal method. This way, I only need to change traversal in one place
-/// if the implementation changes. Assumes `pos` is a valid access index and that the list
-/// is valid.
+/// if the implementation changes.
+/// Assumptions:
+///     - `pos` is a valid access index [0, size-1]
+///         - In reality, it allows [0, size] to support tail-end insertion
+///     - `list` is valid and is non-empty.
 void LLInt_walk_to(LLInt *list, LLIntNode** pp_node, size_t pos);
 #endif // INCLUDED_DSA_LINKED_LIST
