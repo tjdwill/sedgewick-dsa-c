@@ -5,7 +5,7 @@ target_compile_options(linked_list PUBLIC
 add_executable(llTest linked_list.t.c)
 target_link_libraries(llTest PRIVATE linked_list)
 set(sanitizerOpts
-    -fsanitize=address
+    "-fsanitize=address,undefined"
     -fno-omit-frame-pointer
 )
 target_compile_options(llTest PRIVATE

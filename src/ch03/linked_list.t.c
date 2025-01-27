@@ -52,13 +52,13 @@ void test_get(fllint *list)
 {
     fllint_node *item;
     int idx;
-    fprintf(stdout, "<test_get>\n----------\n");
+    //fprintf(stdout, "<test_get>\n----------\n");
     for (int i = 0; i < INNER_TEST_ITERS; ++i)
     {
         idx = ranged_rand(0, MAX_SIZE);
-        fprintf(stdout, "Idx: %d\n", idx);
+        //fprintf(stdout, "Idx: %d\n", idx);
         assert(fllint_get(idx, &item, list) == OK);
-        fprintf(stdout, "GOT: %d\n", item->data);
+        //fprintf(stdout, "GOT: %d\n", item->data);
         assert(item->data == idx);
     }
     return;
