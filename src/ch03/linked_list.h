@@ -155,7 +155,6 @@ bool LLInt_empty(LLInt *list);
 /// if the implementation changes.
 /// Assumptions:
 ///     - `pos` is a valid access index [0, size-1]
-///         - In reality, it allows [0, size] to support tail-end insertion
 ///     - `list` is valid and is non-empty.
 void LLInt_walk_to(LLInt *list, LLIntNode** pp_node, size_t pos);
 #endif // INCLUDED_DSA_LINKED_LIST

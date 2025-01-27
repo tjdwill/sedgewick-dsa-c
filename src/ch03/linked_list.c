@@ -178,6 +178,10 @@ void LLInt_destroy(LLInt *list)
 //
 LLStatus LLInt_insert(LLInt *list, LLIntNode *item, size_t pos)
 {
+    assert(item);
+    size_t sz = LLInt_len(list);
+    if (pos > sz)
+        return BOUNDS_ERR;
     if (LLInt_empty(list))
     {
         // just insert the node.
@@ -185,25 +189,33 @@ LLStatus LLInt_insert(LLInt *list, LLIntNode *item, size_t pos)
         item->prev = list->head;
         list->head->next = item;
         list->tail->prev = item;
-        ++(list->sz);
-        return OK;
     }
-    if (pos > LLInt_len(list))
-        return BOUNDS_ERR;
-    // Traverse through the list and land ON the spot of insertion.
-    // Place item before the present node.
-    LLIntNode *curr;
-    LLInt_walk_to(list, &curr, pos);
-    // Now, curr is ON the place we want item to be, so move `curr` further toward the tail.
-    LLIntNode *curr_prev = curr->prev;
-    LLIntNode *curr_next = curr->next;
-    curr_prev->next = item;
-    curr_next->prev = item;
+    else if (pos == sz)
+    {
+        // Insert at end
+        LLIntNode *tail = list->tail;
+        LLIntNode *tail_left = tail->prev;
 
-    item->prev = curr->prev;
-    item->next = curr;
-    curr->prev = item;
-    // curr->next = curr->next // for completeness
+        item->next = tail;
+        item->prev = tail_left;
+        tail_left->next = item;
+        tail->prev = item;
+    }
+    else
+    {
+        // Traverse through the list and land ON the spot of insertion.
+        // Place item before the present node.
+        LLIntNode *curr;
+        LLInt_walk_to(list, &curr, pos);
+        // Now, curr is ON the place we want item to be, so move `curr` further toward the tail.
+        LLIntNode *curr_prev = curr->prev;
+
+        item->prev = curr_prev;
+        item->next = curr;
+        curr_prev->next = item;
+        curr->prev = item;
+        // curr->next = curr->next // for completeness
+    }
     // Update size
     ++(list->sz);
     return OK;
@@ -218,16 +230,42 @@ LLStatus LLInt_pushback(LLInt *list, LLIntNode *item)
 {
     return LLInt_insert(list, item, LLInt_len(list));
 }
-//
-//LLStatus LLInt_remove(LLInt *list, LLIntNode **ret, size_t pos)
-//{}
-//
-//LLStatus LLInt_pop(LLInt *list, LLIntNode **ret)
-//{}
-//
-//LLStatus LLInt_popback(LLInt *list, LLIntNode **ret)
-//{}
-//
+
+LLStatus LLInt_remove(LLInt *list, LLIntNode **ret, size_t pos)
+{
+    if (pos >= LLInt_len(list))
+        return BOUNDS_ERR;
+    LLIntNode *curr;
+    LLInt_walk_to(list, &curr, pos);
+
+    // update list
+    LLIntNode *prev = curr->prev;
+    LLIntNode *next = curr->next;
+    prev->next = next;
+    next->prev = prev;
+
+    curr->next = nullptr;
+    curr->prev = nullptr;
+    *ret = curr;
+
+    --(list->sz);
+    return OK;
+}
+
+LLStatus LLInt_pop(LLInt *list, LLIntNode **ret)
+{
+    return LLInt_remove(list, ret, 0);
+}
+
+LLStatus LLInt_popback(LLInt *list, LLIntNode **ret)
+{
+    // Note: if the list is empty when this function is called, 
+    // the position calculation will cause a wrap around to the max value of size_t.
+    // This is fine, however, because LLInt_remove checks for proper bounds. The inner call
+    // catches the violation.
+    return LLInt_remove(list, ret, LLInt_len(list) - 1);
+}
+
 //LLStatus LLInt_get(LLInt *list, LLIntNode **ret, size_t pos)
 //{}
 
@@ -245,10 +283,10 @@ void LLInt_walk_to(LLInt *list, LLIntNode** pp_node, size_t pos)
 {
     assert(!LLInt_empty(list));
     size_t sz = LLInt_len(list);
-    assert(pos <= sz);  // LEQ in order to insert at the end of the list.
+    assert(pos < sz); 
     // Choose which direction to begin from. Because LLInts are doubly-linked, we can walk
     // from either direction, meaning the worst-case time complexity is halved.
-    if (sz - pos <= pos)
+    if (sz - pos < pos)
     {
         // Walk from the tail
         *pp_node = list->tail;
