@@ -173,9 +173,7 @@ void LLInt_destroy(LLInt *list)
     free(list);
     return;
 }
-//
-//// MODIFIERS
-//
+
 LLStatus LLInt_insert(LLInt *list, LLIntNode *item, size_t pos)
 {
     assert(item);
