@@ -266,8 +266,13 @@ LLStatus LLInt_popback(LLInt *list, LLIntNode **ret)
     return LLInt_remove(list, ret, LLInt_len(list) - 1);
 }
 
-//LLStatus LLInt_get(LLInt *list, LLIntNode **ret, size_t pos)
-//{}
+LLStatus LLInt_get(LLInt *list, LLIntNode **ret, size_t pos)
+{
+    if (pos >= LLInt_len(list))
+        return BOUNDS_ERR;
+    LLInt_walk_to(list, ret, pos);
+    return OK;
+}
 
 size_t LLInt_len(LLInt *list)
 {

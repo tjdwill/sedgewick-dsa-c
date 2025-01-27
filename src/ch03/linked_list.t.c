@@ -54,6 +54,7 @@ void run_tests()
         ++test;
     }
     test_insert_remove(list);
+    test_get(list);
 
     LLInt_destroy(list);
     return;
@@ -99,5 +100,21 @@ void test_insert_remove(LLInt *list)
 
     //fprintf(stderr, "(start_sz, end_sz): (%lu, %lu)\n", sz, LLInt_len(list));
     assert(LLInt_len(list) == sz);
+    return;
+}
+
+void test_get(LLInt *list)
+{
+    //fprintf(stdout, "<test_get>\n----------\n");
+    LLIntNode *item;
+    int idx;
+    for (int i = 0; i < INNER_TEST_ITERS; ++i)
+    {
+        idx = ranged_rand(0, MAX_SIZE);
+        //fprintf(stdout, "Idx: %d\n", idx);
+        assert(LLInt_get(list, &item, idx) == OK);
+        //fprintf(stdout, "GOT: %d\n", item->data);
+        assert(item->data == idx);
+    }
     return;
 }
