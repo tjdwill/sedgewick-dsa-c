@@ -35,9 +35,9 @@ fllint* init_fllint()
     return list;
 }
 
-LLStatus fllint_insert(fllint_node *node, size_t pos, fllint *list)
+LLStatus fllint_insert(fllint *list, fllint_node *node, size_t pos)
 {
-    if(pos > fllint_len(list))
+    if (pos > fllint_len(list))
         return BOUNDS_ERR;
     fllint_node *curr = list->head;
     for (size_t i = 0; i < pos; ++i)
@@ -48,12 +48,12 @@ LLStatus fllint_insert(fllint_node *node, size_t pos, fllint *list)
     return OK;
 }
 
-LLStatus fllint_push(fllint_node *node, fllint *list)
+LLStatus fllint_push(fllint *list, fllint_node *node)
 {
-    return fllint_insert(node, 0, list);
+    return fllint_insert(list, node, 0);
 }
 
-LLStatus fllint_remove(size_t pos, fllint_node **ret, fllint *list)
+LLStatus fllint_remove(fllint *list, size_t pos, fllint_node **ret)
 {
     if (fllint_len(list) < pos + 1)  // account for the dummy head
         return BOUNDS_ERR;
@@ -70,9 +70,9 @@ LLStatus fllint_remove(size_t pos, fllint_node **ret, fllint *list)
     return OK;
 }
 
-LLStatus fllint_pop(fllint_node **ret, fllint *list)
+LLStatus fllint_pop(fllint *list, fllint_node **ret)
 {
-    return fllint_remove(0, ret, list);
+    return fllint_remove(list, 0, ret);
 }
 
 void fllint_delete(fllint *list)
@@ -89,7 +89,7 @@ void fllint_delete(fllint *list)
 }
 // ACCESSORS
 
-LLStatus fllint_get(size_t pos, fllint_node **item, fllint *list)
+LLStatus fllint_get(fllint *list, size_t pos, fllint_node **item)
 {
     if (fllint_len(list) < pos + 1)
         return BOUNDS_ERR;

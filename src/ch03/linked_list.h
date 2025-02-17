@@ -55,19 +55,19 @@ fllint* init_fllint();
 
 /// Insert the value at the specified position of the input list.
 /// Takes ownership of the node object.
-LLStatus fllint_insert(fllint_node *node, size_t pos, fllint *list);
+LLStatus fllint_insert(fllint *list, fllint_node *node, size_t pos);
 /// Insert element at front of the list.
 /// - Assumes the list is valid.
 /// - Takes ownership of the node object.
 /// - O(1) insertion time.
-LLStatus fllint_push(fllint_node *node, fllint *list);
+LLStatus fllint_push(fllint *list, fllint_node *node);
 /// Remove the node at the specified location.
 /// YOU assume responsiblity for deleting the node object.
-LLStatus fllint_remove(size_t pos, fllint_node **ret, fllint *list);
+LLStatus fllint_remove(fllint *list, size_t pos, fllint_node **ret);
 /// Remove front element.
 /// Returns BOUNDS_ERR if list is empty before this function is called.
 /// YOU assume responsiblity for deleting the node object.
-LLStatus fllint_pop(fllint_node **ret, fllint *list);
+LLStatus fllint_pop(fllint *list, fllint_node **ret);
 
 /// Deletes the entire list, freeing the allocated memory.
 void fllint_delete(fllint *list);
@@ -75,7 +75,7 @@ void fllint_delete(fllint *list);
 // ACCESSORS
 
 /// Get the node at position pos.
-LLStatus fllint_get(size_t pos, fllint_node **item, fllint *list);
+LLStatus fllint_get(fllint *list, size_t pos, fllint_node **item);
 /// Get the number of elements in the list.
 /// Assumes a valid list.
 size_t fllint_len(fllint *list);
