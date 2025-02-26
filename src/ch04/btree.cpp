@@ -87,7 +87,6 @@ int main()
 
 //------------------------------------------------------------------------------
 template<typename T>
-// 
 void BTreeNode<T>::traverse_postorder(
     std::shared_ptr<BTreeNode> tree,
     std::function< void( std::shared_ptr<BTreeNode<T>> )> action
